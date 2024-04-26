@@ -513,8 +513,8 @@ const CommandeBar = () => {
                         sx={{
                           margin: 1,
                           fontSize: 20,
-                          height: 60,
-                          marginTop: 5,
+                          height: 40,
+                          marginTop: 2,
 
                           color: "black",
                         }}
@@ -531,8 +531,8 @@ const CommandeBar = () => {
                         sx={{
                           margin: 1,
                           fontSize: 20,
-                          height: 60,
-                          marginTop: 5,
+                          height: 40,
+                          marginTop: 2,
 
                           color: "black",
                         }}
@@ -549,8 +549,8 @@ const CommandeBar = () => {
                         sx={{
                           margin: 1,
                           fontSize: 20,
-                          height: 60,
-                          marginTop: 5,
+                          height: 40,
+                          marginTop: 2,
                           // display: "flex",
                           // marginLeft: "auto",
                           color: "black",
@@ -568,8 +568,8 @@ const CommandeBar = () => {
                         sx={{
                           margin: 1,
                           fontSize: 20,
-                          height: 60,
-                          marginTop: 5,
+                          height: 40,
+                          marginTop: 2,
                           display: "flex",
                           marginLeft: "auto",
                           color: "black",
