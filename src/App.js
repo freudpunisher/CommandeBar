@@ -78,14 +78,14 @@ function App() {
               <Route path="/Fournisseur" element={<Fournisseur />} />
               <Route path="/entre/bar" element={<LisCommandeBar />} />
               <Route path="/entre/cuisine" element={<LisEntreCuisine />} />
-              <Route
+              {/* <Route
                 path="/entre/bar/commande"
                 element={<CommandeBarEntre />}
-              />
-              <Route
+              /> */}
+              {/* <Route
                 path="/entre/cuisine/commande"
                 element={<EntreCuisine />}
-              />
+              /> */}
               <Route path="/entre/commande/bar" element={<CommandeBar />} />
               <Route
                 path="/entre/commande/cuisine"

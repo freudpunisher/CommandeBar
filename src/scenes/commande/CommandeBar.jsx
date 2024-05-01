@@ -56,23 +56,13 @@ const CommandeBar = () => {
   const currentMonth = currentDate.getMonth() + 1; // Adding 1 because getMonth() is zero-based
   const currentDay = currentDate.getDate();
   const currentYear = currentDate.getFullYear();
-  function generateRandomCode(length) {
-    const characters = "0123456789";
-    const charactersLength = characters.length;
-    let result = "";
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-  const code = generateRandomCode(4);
-  const [generatedCode, setGeneratedCode] = useState(
-    `FCT${currentYear}${currentMonth}${code}BR`
-  );
+  // const code = generateRandomCode(4);
+  const [generatedCode, setGeneratedCode] = useState();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [id, setId] = useState();
   const [pu, setpu] = useState();
   const [openModal, setopenModal] = useState(false);
+  const [is_validated, setis_validated] = useState(false);
   const [product, setproduct] = useState([]);
   const [secondTableData, setSecondTableData] = useState([]);
   const [id_client, setid_client] = useState();
@@ -87,6 +77,17 @@ const CommandeBar = () => {
   const handleProductClick = (product) => {
     setSelectedProduct(product);
   };
+
+  function generateRandomCode() {
+    const characters = "0123456789";
+    const charactersLength = characters.length;
+    let result = "";
+    for (let i = 0; i < 4; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    // let code = `FCT${currentYear}${currentMonth}${result}BR`;
+    setGeneratedCode(`FCT${currentYear}${currentMonth}${result}BR`);
+  }
   const handleClose = () => {
     setopenModal(false);
   };
@@ -242,6 +243,7 @@ const CommandeBar = () => {
 
   // creation entre
   const valideEntre = () => {
+    setis_validated(true);
     axios
       .post(API_URL + "mouvement/sortie/", {
         reference: generatedCode,
@@ -251,6 +253,7 @@ const CommandeBar = () => {
         created_by: 1,
       })
       .then((response) => {
+        generateRandomCode();
         axios
           .post(API_URL + "sortie/data/", itemEntre, {
             transformRequest: [
@@ -276,7 +279,7 @@ const CommandeBar = () => {
       });
 
     handlePrintTable();
-    setSecondTableData([]);
+    // setSecondTableData([]);
   };
 
   const handleRemoveButtonClick = (rowId) => {
@@ -323,6 +326,7 @@ const CommandeBar = () => {
   useEffect(() => {
     fetchProduct();
     fetchClient();
+    generateRandomCode();
   }, []);
 
   const handleQuantityIncrease = (event) => {
@@ -349,6 +353,14 @@ const CommandeBar = () => {
 
   return (
     <Box>
+      <Button
+        variant="contained"
+        color="warning"
+        sx={{ marginLeft: 3, marginTop: 3 }}
+        onClick={() => navigate("/facture/bar")}
+      >
+        Facture
+      </Button>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Box padding={3}>
@@ -519,48 +531,35 @@ const CommandeBar = () => {
                           color: "black",
                         }}
                         onClick={() => {
-                          setopenModal(true);
+                          // setopenModal(true);
+                          setSecondTableData([]);
+                          setis_validated(false);
+                          generateRandomCode();
                         }}
                       >
                         <ReplayIcon />
                       </Button>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        color="secondary"
-                        sx={{
-                          margin: 1,
-                          fontSize: 20,
-                          height: 40,
-                          marginTop: 2,
+                      {is_validated === true ? (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          color="secondary"
+                          sx={{
+                            margin: 1,
+                            fontSize: 20,
+                            height: 40,
+                            marginTop: 2,
 
-                          color: "black",
-                        }}
-                        onClick={() => {
-                          setopenModal(true);
-                        }}
-                      >
-                        <LocalPrintshopIcon />
-                      </Button>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        color="secondary"
-                        sx={{
-                          margin: 1,
-                          fontSize: 20,
-                          height: 40,
-                          marginTop: 2,
-                          // display: "flex",
-                          // marginLeft: "auto",
-                          color: "black",
-                        }}
-                        onClick={() => {
-                          setopenModal(true);
-                        }}
-                      >
-                        <ChecklistIcon />
-                      </Button>
+                            color: "black",
+                          }}
+                          onClick={() => {
+                            handlePrintTable();
+                          }}
+                        >
+                          <LocalPrintshopIcon />
+                        </Button>
+                      ) : null}
+
                       <Button
                         variant="contained"
                         size="small"
