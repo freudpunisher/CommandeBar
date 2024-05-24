@@ -41,6 +41,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { API_URL } from "../../data/Api";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import logo from "../../assets/Dodoma_Park_Logo.png";
 
 // import ReactToPrint from 'react-to-print';
 // import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -85,7 +86,7 @@ const ListFactureBar = () => {
   const [listentreproduit, setlistentreproduit] = useState([]);
   const [listproduit, setlistproduit] = useState([]);
   const [openModalv, setopenModalv] = useState(false);
-  const [validated_by, setvalidated_by] = useState();
+  const [paye, setpaye] = useState();
   const [Id_entreMouvement, setid_entreMouvement] = useState();
   const [numero_Facture, setnumero_Facture] = useState();
   const [serveur, setserveur] = useState();
@@ -100,6 +101,58 @@ const ListFactureBar = () => {
     montant: obj.montant_total_info.montant,
     status_paye: obj.status_paye,
   }));
+
+  function handlePrintTable() {
+    // Generate a print-friendly HTML table structure
+
+    const printTableHTML = `
+      <div style="width: 100%; margin: 0 auto;">
+        <table style="width: 100%;">
+          <tr><th><img src=${logo} alt="Logo" style="width: 100px; height: 100px;"></th></tr>
+        </table><br>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td>Contact</td><td>: (+257) 69124625/68424589</td></tr>
+          <tr><td>Serveur</td><td>: ${serveur}</td></tr>
+          <tr><td>Date</td><td>: ${moment(date).format("DD-MM-YYYY")}</td></tr>
+          <tr><td>FACT No</td><td>: ${generatedCode}</td></tr>   
+          <tr><td>NIF  </td><td>: 4002545897</td></tr>   
+        </table><br>
+        <table border=1 style="width: 100%; border-collapse: collapse; margin-bottom:10px;">
+          <thead>                         
+            <tr><td>Produit</td><td>Qte</td><td>P.U</td><td>P.T</td></tr>
+          </thead>
+          <tbody>
+            ${produitdata.map(
+              (item) => `
+              <tr>
+                <td>${item.produit}</td>
+                <td>${item.quantite}</td>
+                <td>${item.prix_unitaire} Fbu</td>
+                <td>${item.quantite * item.prix_unitaire} Fbu</td>
+              </tr>
+            `
+            )}
+            <tr>
+              <td colspan="3">Total</td>
+              <td>${totalPT} Fbu</td>
+            </tr>             
+          </tbody>
+        </table>
+      </div> <br>
+      <table style="width: 100%;">
+        <tr><th>Bujumbura Rohero AV italie No 125</th></tr>
+      </table><hr><br><br>
+      
+    `;
+    const printWindow = window.open("", "", "width=1000,height=1000");
+    printWindow.document.write(printTableHTML);
+    printWindow.document.close();
+
+    printWindow.onload = function () {
+      printWindow.print();
+      printWindow.close();
+    };
+  }
 
   // les donnees qui doit apparaitre dans le modal
 
@@ -133,7 +186,7 @@ const ListFactureBar = () => {
   // listes des mouvement sortie
 
   const fetchentreproduit = () => {
-    axios.get(API_URL + "mouvement/sortie/").then((response) => {
+    axios.get(API_URL + "mouvement/sortie/type/1/").then((response) => {
       setlistentreproduit(response.data);
     });
   };
@@ -353,9 +406,8 @@ const ListFactureBar = () => {
       headerName: "Date",
       flex: 1,
       cellClassName: "name-column--cell",
-      //   renderCell: (params) => (
-      //     // moment(params.row.created_at).format('YYYY-MM-DD')
-      //  ),
+      renderCell: (params) =>
+        moment(params.row.created_at).format("DD-MM-YYYY"),
     },
     {
       field: "montant",
@@ -525,7 +577,7 @@ const ListFactureBar = () => {
               setdate(params.row.created_at);
               setserveur(params.row.client);
               setid(params.row.id);
-              setvalidated_by(params.row.validated_by);
+              setpaye(params.row.status_paye);
             }}
           >
             <VisibilityIcon />
@@ -945,7 +997,7 @@ const ListFactureBar = () => {
               {serveur}
             </Typography>
             <Typography variant="h4" mb={1}>
-              {moment(date).format("YYYY-MM-DD")}
+              {moment(date).format("DD-MM-YYYY")}
             </Typography>
             <TableContainer style={{ borderRadius: "4px" }}>
               <Table
@@ -961,7 +1013,7 @@ const ListFactureBar = () => {
                     <TableCell>Quantite</TableCell>
                     <TableCell>Prix Unitaire</TableCell>
                     <TableCell>Prix Total</TableCell>
-                    <TableCell>Actons</TableCell>
+                    {paye === false && <TableCell>Actons</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -975,11 +1027,15 @@ const ListFactureBar = () => {
                       <TableCell>{row.quantite}</TableCell>
                       <TableCell>{row.prix_unitaire}</TableCell>
                       <TableCell>{row.prix_total}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => deleteentreproduit(row.id)}>
-                          <DeleteIcon color="error" />
-                        </IconButton>
-                      </TableCell>
+                      {paye === false && (
+                        <TableCell>
+                          <IconButton
+                            onClick={() => deleteentreproduit(row.id)}
+                          >
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                   <TableRow sx={{ bgcolor: colors.primary[700] }}>
@@ -1002,7 +1058,7 @@ const ListFactureBar = () => {
                 <TableFooter>
                   <TableRow sx={{ border: 0 }}>
                     <TableCell sx={{ border: 0 }}>
-                      {validated_by == null ? (
+                      {paye === false ? (
                         <Button
                           variant="contained"
                           color="secondary"
@@ -1016,6 +1072,15 @@ const ListFactureBar = () => {
                     </TableCell>
                     <TableCell sx={{ border: 0 }}></TableCell>
                     <TableCell sx={{ border: 0 }}></TableCell>
+                    <TableCell sx={{ border: 0 }}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handlePrintTable}
+                      >
+                        print
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
